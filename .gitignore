@@ -33,3 +33,4 @@
 
 # Mac files
 .DS_Store
+*.dSYM
