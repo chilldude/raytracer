@@ -3,6 +3,9 @@
 #include "hitable.h"
 #include "hitable_list.h"
 #include "sphere.h"
+#include "camera.h"
+#include <cstdlib>
+#include <ctime>
 
 vec3 color(const ray& r, hitable *world) {
   hit_record rec;
@@ -22,16 +25,16 @@ vec3 color(const ray& r, hitable *world) {
 }
 
 int main() {
+  srand(time(NULL));
   int nx = 800;
   int ny = 400;
+  int ns = 100;
 
   // Define size and max color for image
   std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
-  vec3 lower_left_corner(-2.0, -1.0, -1.0);
-  vec3 horizontal(4.0, 0.0, 0.0);
-  vec3 vertical(0.0, 2.0, 0.0);
-  vec3 origin(0.0, 0.0, 0.0);
+  // initialize camera
+  camera cam;
 
   // initialize world objects
   hitable *list[2];
@@ -41,11 +44,17 @@ int main() {
 
   for (int j = ny-1; j >= 0; j--) {
     for (int i = 0; i < nx; i++) {
-      float u = float(i) / float(nx);
-      float v = float(j) / float(ny);
+      vec3 col(0.0, 0.0, 0.0);
 
-      ray r(origin, lower_left_corner + u*horizontal + v*vertical);
-      vec3 col = color(r, world);
+      // add simple anti-aliasing
+      for (int s=0; s < ns; s++) {
+        float u = float(i + (((double) rand() / (RAND_MAX)) + 1)) / float(nx);
+        float v = float(j + (((double) rand() / (RAND_MAX)) + 1)) / float(ny);
+
+        ray r = cam.get_ray(u, v);
+        col += color(r, world);
+      }
+      col /= float(ns);
 
       int ir = int(255.99*col[0]);
       int ig = int(255.99*col[1]);
