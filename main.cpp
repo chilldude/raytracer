@@ -22,7 +22,10 @@ vec3 random_point_in_unit_sphere() {
 
 vec3 color(const ray& r, hitable *world) {
   hit_record rec;
-  if (world->hit(r, 0.0, MAXFLOAT, rec)) {
+  /*
+   * Ignore hits close to 0 to mitigate shadow acne
+   */
+  if (world->hit(r, 0.001, MAXFLOAT, rec)) {
     vec3 target = rec.p + rec.normal + random_point_in_unit_sphere();
     //return 0.5 * vec3(rec.normal.x()+1.0, rec.normal.y()+1.0, rec.normal.z()+1.0);
     return  0.5 * color(ray(rec.p, target-rec.p), world);
@@ -70,6 +73,12 @@ int main() {
         col += color(r, world);
       }
       col /= float(ns);
+
+      /*
+       * For a first approximation, use gamma 2 which
+       * means raising the color to the power of 1/gamma
+       */
+      col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
 
       int ir = int(255.99*col[0]);
       int ig = int(255.99*col[1]);
