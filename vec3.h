@@ -144,3 +144,11 @@ inline vec3& vec3::operator/=(const float t) {
 inline vec3 unit_vector(vec3 v) {
   return v / v.length();
 }
+
+/*
+ * Let v be the incident vector and n before the unit normal.
+ * Reflected vector is equal to v + 2b where |b| = dot(v, n).
+ */
+inline vec3 reflect(const vec3& v, const vec3& n) {
+  return v - 2 * dot(v, n) * n;
+}
